@@ -1,28 +1,25 @@
 import 'package:car_rental/firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-  );
+  WidgetsFlutterBinding.ensureInitialized(); // Flutter is fully ready before running any code
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter sds Home Page'),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -37,11 +34,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  FirebaseFirestore db = FirebaseFirestore.instance; //  initializes the Firestore database
+  final TextEditingController firstName = TextEditingController(); // value 
+  final TextEditingController lastName = TextEditingController(); // value
+
   void _incrementCounter() {
-    setState(() {
-      _counter++;
+    final user = {
+      "firstName": firstName.text,
+      "lastName": lastName.text,
+      "born": DateTime(2002, 09, 27),
+    };
+
+    //  adds a new document (user data) to a Firestore collection called users
+    db.collection("users").add(user).then((DocumentReference doc) =>
+      print("User add with ID: ${doc.id}")
+    );
+
+    setState((){ // updating text
+      firstName.text;
+      lastName.text;
     });
+
   }
 
   @override
@@ -55,11 +68,21 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You havedsdsds button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            TextField(
+              decoration: InputDecoration(labelText: 'Enter firstname'),
+              controller: firstName,
             ),
+            TextField(
+              decoration: InputDecoration(labelText: 'Enter lastname'),
+              controller: lastName,
+            ),
+             ElevatedButton(
+              onPressed: _incrementCounter,
+              child: Text("CLICK"),
+            ),
+          
+            Text('${firstName.text}'),
+            Text('${lastName.text}')
           ],
         ),
       ),
@@ -67,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), 
+      ),
     );
   }
 }
